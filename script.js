@@ -25,6 +25,19 @@ window.addEventListener('scroll', () => {
 });
 
 /* ============================================
+   AUTO-CLOSE MOBILE MENU ON SCROLL
+============================================ */
+let lastScrollPos = 0;
+window.addEventListener('scroll', () => {
+  const currentScroll = window.scrollY;
+  if (Math.abs(currentScroll - lastScrollPos) > 60 && navLinks.classList.contains('open')) {
+    navLinks.classList.remove('open');
+    hamburger.classList.remove('active');
+  }
+  lastScrollPos = currentScroll;
+}, { passive: true });
+
+/* ============================================
    SCROLL REVEAL
 ============================================ */
 const revealObserver = new IntersectionObserver((entries) => {
