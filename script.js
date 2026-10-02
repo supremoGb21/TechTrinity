@@ -64,7 +64,7 @@ filterButtons.forEach(btn => {
 });
 
 /* ============================================
-   CONTACT FORM (Formspree AJAX)
+   CONTACT FORM (Web3Forms)
 ============================================ */
 const form = document.getElementById('contactForm');
 const formNote = document.getElementById('formNote');
@@ -81,19 +81,26 @@ form.addEventListener('submit', async (e) => {
   formNote.style.color = 'var(--accent)';
 
   try {
-    const response = await fetch(form.action, {
+    const formData = new FormData(form);
+    const json = Object.fromEntries(formData);
+
+    const response = await fetch('https://api.web3forms.com/submit', {
       method: 'POST',
-      body: new FormData(form),
-      headers: { 'Accept': 'application/json' }
+      headers: {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json'
+      },
+      body: JSON.stringify(json)
     });
 
-    if (response.ok) {
-      formNote.textContent = '✓ Thanks! We received your brief and will reply within 24 hours.';
+    const data = await response.json();
+
+    if (data.success) {
+      formNote.textContent = '✓ Thanks! Your brief was sent. We\'ll reply within 24 hours.';
       form.reset();
     } else {
-      const data = await response.json().catch(() => ({}));
       formNote.style.color = '#F87171';
-      formNote.textContent = data.error || '✗ Something went wrong. Please email us directly.';
+      formNote.textContent = '✗ ' + (data.message || 'Something went wrong. Please email us directly.');
     }
   } catch (err) {
     formNote.style.color = '#F87171';
@@ -110,7 +117,9 @@ form.addEventListener('submit', async (e) => {
 ============================================ */
 document.querySelectorAll('a[href^="#"]').forEach(anchor => {
   anchor.addEventListener('click', function (e) {
-    const target = document.querySelector(this.getAttribute('href'));
+    const href = this.getAttribute('href');
+    if (href === '#') return;
+    const target = document.querySelector(href);
     if (target) {
       e.preventDefault();
       target.scrollIntoView({ behavior: 'smooth', block: 'start' });
